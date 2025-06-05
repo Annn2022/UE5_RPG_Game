@@ -10,7 +10,7 @@
 #include "Actor/AuraProjectile.h"
 #include "Interaction/CombatInterface.h"
 
-void UAuraProtectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocation)
+void UAuraProtectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocation, const FGameplayTag& SocketTag)
 {
 	bool bIsServer = GetAvatarActorFromActorInfo()->HasAuthority();
 	if (!bIsServer) return;
@@ -19,7 +19,7 @@ void UAuraProtectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocati
 	if (const ICombatInterface* CombatInterface = Cast<ICombatInterface>(GetAvatarActorFromActorInfo()))
 	{
 		// 获取施法者位置 BlueprintNativeEvent 下的调用方式
-		const FVector Location = ICombatInterface::Execute_GetCombatSocketLocation(GetAvatarActorFromActorInfo(), FAuraGameplayTags::Get().CombatSocket_Weapon);
+		const FVector Location = ICombatInterface::Execute_GetCombatSocketLocation(GetAvatarActorFromActorInfo(), SocketTag);
 		FRotator Rotation = (ProjectileTargetLocation - Location).Rotation();
 		
 		FTransform SpawnTransform;

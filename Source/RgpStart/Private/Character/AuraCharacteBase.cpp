@@ -6,6 +6,7 @@
 #include "FAuraGameplayTags.h"
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "RgpStart/RgpStart.h"
 
 
@@ -47,10 +48,10 @@ FVector AAuraCharacteBase::GetCombatSocketLocation_Implementation(const FGamepla
 		return GetMesh()->GetSocketLocation(RightHandSocketName);
 	else if (MontageTag.MatchesTagExact(FAuraGameplayTags::Get().CombatSocket_Weapon))
 		return Weapon->GetSocketLocation(WeaponTipSocketName);
+	else if (MontageTag.MatchesTagExact(FAuraGameplayTags::Get().CombatSocket_Tail))
+		return GetMesh()->GetSocketLocation(TailSocket);
 	
 	return FVector::ZeroVector;
-	
-
 	
 }
 
@@ -80,6 +81,21 @@ UNiagaraSystem* AAuraCharacteBase::GetHitEffect_Implementation() const
 	return HitEffect;
 }
 
+FTaggedMontage AAuraCharacteBase::GetTaggedMontagByTag_Implementation(const FGameplayTag GameplayTag) const
+{
+	for (FTaggedMontage Montage : AttackMontages)
+	{
+		if (Montage.MontageTag.MatchesTagExact(GameplayTag))
+			return Montage;
+	}
+	return FTaggedMontage();
+}
+
+ECharacterClass AAuraCharacteBase::GetCharacterClass_Implementation() const
+{
+	return CharacterClass;
+}
+
 void AAuraCharacteBase::MulticastHandleDeath_Implementation()
 {
 	Weapon->SetSimulatePhysics(true);
@@ -94,6 +110,7 @@ void AAuraCharacteBase::MulticastHandleDeath_Implementation()
 
 	EffectDissolve();
 	bIsDead = true;
+	UGameplayStatics::PlaySoundAtLocation(this, DeadSound,GetActorLocation(),GetActorRotation());
 }
 
 

@@ -51,6 +51,7 @@ void AAuraProjectile::Destroyed()
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this,ImpactEffect, GetActorLocation());
 		if (LoopSoundComponent)
 			LoopSoundComponent->Stop();
+		bHit = true;
 	}
 	Super::Destroyed();
 
@@ -69,10 +70,13 @@ void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComp, AActo
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this,ImpactEffect, GetActorLocation());
 		if (LoopSoundComponent)
 			LoopSoundComponent->Stop();
+		bHit = true;
+
 	}
 	
 	if (HasAuthority())
 	{
+		//ApplyEffect在Server端执行
 		if (auto TargetASC =UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OtherActor))
 		{
 			TargetASC->ApplyGameplayEffectSpecToSelf(*DamageEffectSpecHandle.Data.Get());
@@ -80,10 +84,7 @@ void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComp, AActo
 		
 		Destroy();
 	}
-	else
-	{
-		bHit = true;
-	}
+	
 }
 
 

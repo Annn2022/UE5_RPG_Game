@@ -4,6 +4,7 @@
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 
 #include "AbilitySystem/Abilities/AuraGameplayAbility.h"
+#include "RgpStart/AuraLogChannels.h"
 
 void UAuraAbilitySystemComponent::AbilityActorInfoSet()
 {
@@ -23,6 +24,8 @@ void UAuraAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf
 
 		}
 	}
+	bStartAbilityGiven = true;
+	OnAbilitiesGivenDelegate.Broadcast(this);
 }
 
 //测试用
@@ -60,8 +63,63 @@ void UAuraAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& In
 	}
 }
 
+void UAuraAbilitySystemComponent::ForEachAbility(const FForEachAbility& Func)
+{
+	//遍历时锁定能力系统
+	FScopedAbilityListLock ActiveAbilitiesLock(*this);
+	for (auto& Spec : GetActivatableAbilities())
+	{
+		if (!Func.ExecuteIfBound(Spec))
+		{
+			UE_LOG(LogAura, Warning, TEXT("Failed Found Ability: %hs"), __FUNCTION__);
+		}
+	}
+}
+
+FGameplayTag UAuraAbilitySystemComponent::GetAbilityTagFromAbilitySpec(const FGameplayAbilitySpec& Spec)
+{
+	if (Spec.Ability)
+	{
+		for (FGameplayTag Tag: Spec.Ability.Get()->AbilityTags)
+		{
+			if (Tag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Abilities"))))
+			{
+				return Tag;
+				
+			}
+		}
+	}
+	return FGameplayTag();
+}
+
+FGameplayTag UAuraAbilitySystemComponent::GetInputTagFromAbilitySpec(const FGameplayAbilitySpec& Spec)
+{
+	
+	for (FGameplayTag Tag: Spec.GetDynamicSpecSourceTags())
+	{
+		if (Tag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("InputTag"))))
+		{
+			return Tag;
+		}
+	}
+	
+	return FGameplayTag();
+}
+
+void UAuraAbilitySystemComponent::OnRep_ActivateAbilities()
+{
+	Super::OnRep_ActivateAbilities();
+	if (!bStartAbilityGiven)
+	{
+		bStartAbilityGiven = true;
+		OnAbilitiesGivenDelegate.Broadcast(this);
+
+	}
+
+}
+
 void UAuraAbilitySystemComponent::ClientEffectApplied_Implementation(UAbilitySystemComponent* AbilitySystemComponent,
-                                                const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle EffectHandle)
+                                                                     const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle EffectHandle)
 {
 	FGameplayTagContainer Tags;
 	EffectSpec.GetAllAssetTags(Tags);
@@ -70,3 +128,4 @@ void UAuraAbilitySystemComponent::ClientEffectApplied_Implementation(UAbilitySys
 	OnEffectAppliedTagsDelegate.Broadcast(Tags);
 	
 }
+

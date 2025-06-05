@@ -375,6 +375,17 @@ bool UAuraGASLibrary::IsNotFriend(AActor* Actor1, AActor* Actor2)
 	return FirstIsPlayer != SecondIsPlayer;
 }
 
+int32 UAuraGASLibrary::GetRewardForClassAndLevel(const UObject* WorldContextObject, ECharacterClass CC, float Level)
+{
+	AAuraGameModeBase* AuraGameModeBase = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
+	if (AuraGameModeBase == nullptr) return 0;
+	
+	UCharacterClassInfo* CharacterClassInfo = AuraGameModeBase->CharacterClassInfo;
+	const FCharacterClassDefaultInfo CharacterClassDefaultInfo = CharacterClassInfo->GetClassDefaultInfo(CC);
+	const float Reward = CharacterClassDefaultInfo.XPReward.GetValueAtLevel(Level);
+	return static_cast<int32>(Reward);
+}
+
 
 FWidgetControllerParams UAuraGASLibrary::GetWidgetControllerParams(APlayerController* PC)
 {

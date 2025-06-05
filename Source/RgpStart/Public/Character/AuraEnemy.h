@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "Character/AuraCharacteBase.h"
 #include "Components/WidgetComponent.h"
 #include "Interaction/EnemyInterface.h"
@@ -60,8 +59,7 @@ protected:
 	UPROPERTY(EditAnywhere,BlueprintReadOnly, Category = "Enemy Defaults")
 	int32 Level = 1;
 
-	UPROPERTY(EditAnywhere,BlueprintReadOnly, Category = "Enemy Defaults")
-	ECharacterClass  CharacterClass = ECharacterClass::Warrior;
+	
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Enemy Defaults")
 	TObjectPtr<UWidgetComponent> HealthBar;

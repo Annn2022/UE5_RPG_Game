@@ -66,5 +66,4 @@ public:
 	TObjectPtr<UCurveTable> DamageCalculationCoefficients;
 
 	FCharacterClassDefaultInfo GetClassDefaultInfo(ECharacterClass CharacterClass);
-
 };

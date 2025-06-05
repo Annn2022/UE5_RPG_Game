@@ -125,6 +125,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "AuraAbilitySystemLibrary|GameplayMechanics")
 	static bool IsNotFriend(AActor* Actor1, AActor* Actor2);
+
+	UFUNCTION(BlueprintPure, Category = "AuraAbilitySystemLibrary|GameplayMechanics")
+	static int32 GetRewardForClassAndLevel(const UObject* WorldContextObject, ECharacterClass CC, float Level);
 private:
 	static FWidgetControllerParams GetWidgetControllerParams(APlayerController* PC);
 };
