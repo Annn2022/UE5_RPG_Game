@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/Data/AbilityInfo.h"
 #include "UI/Widget/AuraUserWidget.h"
 #include "UI/WidgetController/AuraWidgetController.h"
 #include "OverlayWidgetController.generated.h"
@@ -27,9 +26,8 @@ struct FUIWidgetRow:public FTableRowBase
 	UTexture2D* Icon = nullptr;
 	
 };
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChangedSignature,float,NewHealth);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChangedSignature,float,NewValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMessageWidgetRowSignature,FUIWidgetRow,Row);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAbilityInfoSignature,const FAuraAbilityInfo&,AbilityInfo);
 /**
  * 
  */
@@ -55,30 +53,31 @@ public:
     UPROPERTY(BlueprintAssignable,Category="GAS|Attributes")
     FOnAttributeChangedSignature OnMaxManaChanged;
 
-	UPROPERTY(BlueprintAssignable,Category="GAS|Attributes")
-	FOnAttributeChangedSignature OnLevelChanged;
+	UPROPERTY(BlueprintAssignable,Category="GAS|Ability")
+	FOnPLayerStateChangedSignature OnLevelChanged;
+
+	//接收到的是当前经验的百分比
 	UPROPERTY(BlueprintAssignable,Category="GAS|Attributes")
 	FOnAttributeChangedSignature OnXPChanged;
 	//游戏事件：获取道具等发出后蓝图接收并处理
 	UPROPERTY(BlueprintAssignable,Category="GAS|Message")
 	FOnMessageWidgetRowSignature OnMessageWidgetRow;
 
-	UPROPERTY(BlueprintAssignable,Category="GAS|Ability")
-	FAbilityInfoSignature OnAbilityInfoSet;
+
+
+
 
 protected:
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Widget Data")
 	TObjectPtr<UDataTable> MessageWidgetDataTable = nullptr;
 
-	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Widget Data")
-	TObjectPtr<UAbilityInfo> AbilityInfoData = nullptr;
+
 
 	template<typename T>
 	T* GetDataFromDataTable(UDataTable* Table,const FGameplayTag& MessageTag) const;
-
-	void OnInitializeStartUpAbilities(UAuraAbilitySystemComponent* AuraAbilitySystemComponent);
-	void OnPlayerLevelChanged(int32 NewLevel);
-	void OnPlayerXPChanged(int32 NewXP) const;
+	
+	void OnPlayerLevelChanged(int32 NewLevel) const;
+	void OnPlayerXPChanged(int32 NewXP);
 };
 
 

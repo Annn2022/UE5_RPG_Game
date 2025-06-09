@@ -3,14 +3,14 @@
 
 #include "UI/WidgetController/AttributeMenuWidgetController.h"
 
-#include "FAuraGameplayTags.h"
+#include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "AbilitySystem/AuraAttributeSet.h"
 #include "AbilitySystem/Data/AttributeInfos.h"
+#include "Player/AuraPlayerState.h"
 
 void UAttributeMenuWidgetController::BindCallbacksToDependencies()
 {
-	UAuraAttributeSet* AS = Cast<UAuraAttributeSet>(AttributeSet);
-	check(MyAttributeInfo)
+	UAuraAttributeSet* AS = GetAuraAS();
 
 	for (auto& Pair : AS->AllAttributesForTag)
 	{
@@ -23,18 +23,44 @@ void UAttributeMenuWidgetController::BindCallbacksToDependencies()
 				AttributeInfoDelegate.Broadcast(Info);
 			});
 	}
+
+	AAuraPlayerState* UAuraPlayerState = GetAuraPS();
+	
+	UAuraPlayerState->OnAttributePointChanged.AddLambda([this](int32 NewPoints)
+	{
+		OnAttributePointChangedDelegate.Broadcast(NewPoints);
+	});
+
+	UAuraPlayerState->OnSpellPointChanged.AddLambda([this](int32 NewPoints)
+	{
+		OnSpellPointChangedDelegate.Broadcast(NewPoints);
+	});
 }
 
 void UAttributeMenuWidgetController::BroadcastInitialValues()
 {
-	UAuraAttributeSet* AS = Cast<UAuraAttributeSet>(AttributeSet);
-	check(MyAttributeInfo)
-	
-	for (auto& Pair : AS->AllAttributesForTag)
+	for (auto& Pair : GetAuraAS()->AllAttributesForTag)
 	{
 		FAuraAttributeInfo Info = MyAttributeInfo->FindAttributeInfoForTag(Pair.Key);
-		Info.BaseValue = Pair.Value().GetNumericValue(AS);
+		Info.BaseValue = Pair.Value().GetNumericValue(GetAuraAS());
         AttributeInfoDelegate.Broadcast(Info);
     }
 	
+
+	OnAttributePointChangedDelegate.Broadcast(GetAuraPS()->GetAttributePoint());
+	OnSpellPointChangedDelegate.Broadcast(GetAuraPS()->GetPlayerSpellPoint());
+
+	
+}
+
+bool UAttributeMenuWidgetController::AddAttributeValue(const FGameplayTag& AttributeTag, const int32 AddNum)
+{
+	
+	if (GetAuraPS()->GetAttributePoint() < AddNum)
+	{
+		//属性点不足
+		return false;
+	}
+	
+	return GetAuraASC()->UpgradeAttribute(AttributeTag);
 }

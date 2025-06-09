@@ -270,22 +270,22 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 
 	Instance.Abilities_Status_Eligible = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Abilities.Status.Eligible"),
-		FString("Eligible Status")
+		FString("有资格解锁")
 		);
 
 	Instance.Abilities_Status_Equipped = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Abilities.Status.Equipped"),
-		FString("Equipped Status")
+		FString("已装备")
 		);
 
 	Instance.Abilities_Status_Locked = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Abilities.Status.Locked"),
-		FString("Locked Status")
+		FString("锁定中")
 		);
 
 	Instance.Abilities_Status_Unlocked = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Abilities.Status.Unlocked"),
-		FString("Unlocked Status")
+		FString("已解锁")
 		);
 
 	Instance.Abilities_Type_None = UGameplayTagsManager::Get().AddNativeGameplayTag(
@@ -295,12 +295,12 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 
 	Instance.Abilities_Type_Offensive = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Abilities.Type.Offensive"),
-		FString("Type Offensive")
+		FString("主动技能")
 		);
 
 	Instance.Abilities_Type_Passive = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Abilities.Type.Passive"),
-		FString("Type Passive")
+		FString("被动技能")
 		);
 
 	/*

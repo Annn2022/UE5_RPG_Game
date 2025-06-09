@@ -25,7 +25,7 @@ public:
 	
 	virtual void HighLightActor() override;
 	virtual void UnHighLightActor() override;
-	virtual int32 GetActorLevel() const override;
+	virtual int32 GetActorLevel_Implementation() const override;
 	virtual void Die() override;
 
 	//

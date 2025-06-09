@@ -66,7 +66,7 @@ void AAuraEnemy::UnHighLightActor()
 	
 }
 
-int32 AAuraEnemy::GetActorLevel() const
+int32 AAuraEnemy::GetActorLevel_Implementation() const
 {return Level;}
 
 void AAuraEnemy::Die()

@@ -10,6 +10,7 @@
 class UAttributeInfos;
 struct FAuraAttributeInfo;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAttributeInfoSignature, const FAuraAttributeInfo&, Info);
+
 /**
  * 
  */
@@ -24,6 +25,14 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "GAS|Attributes")
 	FAttributeInfoSignature AttributeInfoDelegate;
 
+	UPROPERTY(BlueprintAssignable, Category = "GAS|WidgetController")
+	FOnPLayerStateChangedSignature OnAttributePointChangedDelegate;
+
+	UPROPERTY(BlueprintAssignable, Category = "GAS|WidgetController")
+	FOnPLayerStateChangedSignature OnSpellPointChangedDelegate;
+
+	UFUNCTION(BlueprintCallable, Category = "GAS|WidgetController")
+	bool AddAttributeValue(const FGameplayTag& AttributeTag, const int32 AddNum = 1);
 protected:
 	//属性集资产
 	UPROPERTY(EditDefaultsOnly)

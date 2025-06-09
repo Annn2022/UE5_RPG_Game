@@ -120,12 +120,12 @@ void UExecCalcu_Damage::Execute_Implementation(const FGameplayEffectCustomExecut
 	int32 SourcePlayerLevel = 1;
 	if (SourceAvatar->Implements<UCombatInterface>())
 	{
-		//SourcePlayerLevel = ICombatInterface::Execute_GetPlayerLevel(SourceAvatar);
+		SourcePlayerLevel = ICombatInterface::Execute_GetActorLevel(SourceAvatar);
 	}
 	int32 TargetPlayerLevel = 1;
 	if (TargetAvatar->Implements<UCombatInterface>())
 	{
-		 //TargetPlayerLevel = ICombatInterface::Execute_GetPlayerLevel(TargetAvatar);
+		 TargetPlayerLevel = ICombatInterface::Execute_GetActorLevel(TargetAvatar);
 	}
 
 	const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();

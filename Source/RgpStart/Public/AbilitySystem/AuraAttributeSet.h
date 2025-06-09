@@ -69,7 +69,10 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
 
-	TMap<FGameplayTag, FStaticFuncPtr<FGameplayAttribute()>> AllAttributesForTag;;
+	TMap<FGameplayTag, FStaticFuncPtr<FGameplayAttribute()>> AllAttributesForTag;
+	FGameplayAttribute FindAttributeByTag(FGameplayTag Tag) const;
+
+	virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
 	/*
  * 主要数值
  */
@@ -179,6 +182,10 @@ public:
 	UPROPERTY(BlueprintReadOnly,Category="Meta Attributes")
 	FGameplayAttributeData IncomingDamage;
 	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, IncomingDamage);
+
+	UPROPERTY(BlueprintReadOnly,Category="Meta Attributes")
+	FGameplayAttributeData IncomingXP;
+	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, IncomingXP);
 	
 	UFUNCTION()
 	void OnRep_Health(const FGameplayAttributeData& oldHeath) const;
@@ -257,6 +264,10 @@ private:
 	void SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& Props) const;
 
 	void ShowFloatingText(const FEffectProperties& Props, float Damage, bool bBlockHit, bool bCriticalHit) const;
+
+	void SendXPEvent(const FEffectProperties& Props) const;
+	bool bIsTopOffHealth = false;
+	bool bIsTopOffMana = false;
 };
 
 

@@ -5,12 +5,11 @@
 #include "Net/UnrealNetwork.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "FAuraGameplayTags.h"
-#include "FieldNotificationDeclaration.h"
 #include "GameFramework/Character.h"
 #include "GameplayEffectExtension.h"
 #include "AbilitySystem/AuraGASLibrary.h"
 #include "Interaction/CombatInterface.h"
-#include "Kismet/GameplayStatics.h"
+#include "Interaction/PlayerInterface.h"
 #include "Player/AuraPlayerController.h"
 
 UAuraAttributeSet::UAuraAttributeSet()
@@ -75,6 +74,34 @@ void UAuraAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimePropert
 	DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, Mana, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, MaxMana, COND_None, REPNOTIFY_Always);
+}
+
+FGameplayAttribute UAuraAttributeSet::FindAttributeByTag(FGameplayTag Tag) const
+{
+	for (const auto& Pair : AllAttributesForTag)
+	{
+		if (Pair.Key == Tag)
+		{
+			return Pair.Value();
+		}
+	}
+	return FGameplayAttribute();
+}
+
+void UAuraAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
+{
+	Super::PostAttributeChange(Attribute, OldValue, NewValue);
+	if (Attribute == GetMaxHealthAttribute() && bIsTopOffHealth)
+	{
+		bIsTopOffHealth = false;
+		SetHealth(GetMaxHealth());
+	}
+	else if (Attribute == GetMaxManaAttribute() && bIsTopOffMana)
+	{
+		bIsTopOffMana = false;
+
+		SetMana(GetMaxMana());
+	}
 }
 
 void UAuraAttributeSet::OnRep_Health(const FGameplayAttributeData& oldHeath) const
@@ -307,6 +334,7 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectMo
 				if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(EffectProperties.TargetActor))
 				{
 					CombatInterface->Die();
+					SendXPEvent(EffectProperties);
 				}
 			}
 
@@ -316,8 +344,55 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectMo
 				UAuraGASLibrary::IsCriticalHit(EffectProperties.EffectContextHandle));
 		}
 	}
+
+	else if (Data.EvaluatedData.Attribute == GetIncomingXPAttribute())
+	{
+		const float XP = GetIncomingXP();
+		SetIncomingXP(0.f);
+		UE_LOG(LogTemp, Warning, TEXT("%s 获得经验： %f "), *EffectProperties.TargetActor->GetName(),XP);
+		 if (EffectProperties.SourceCharacter->Implements<UPlayerInterface>()
+		 	&& EffectProperties.SourceCharacter->Implements<UCombatInterface>())
+		 {
+		 	const int32 CurLevel = ICombatInterface::Execute_GetActorLevel(EffectProperties.SourceCharacter);
+		 	const int32 CurXP = IPlayerInterface::Execute_GetXP(EffectProperties.SourceCharacter);
+		 	
+		 	const int32 NewLevel = IPlayerInterface::Execute_FindNewLevelForXP(EffectProperties.SourceCharacter, CurXP + XP);
+		 	const int32 AddLevel = NewLevel - CurLevel;
+		 	if (AddLevel > 0)
+		 	{
+		 		//TODO 未考虑连升等级的情况
+		 		const int32 AttrPointsReward = IPlayerInterface::Execute_GetAttributePointsReward(EffectProperties.SourceCharacter, CurLevel);
+		 		const int32 SpellPointsReward = IPlayerInterface::Execute_GetSpellPointsReward(EffectProperties.SourceCharacter, CurLevel);
+		 		IPlayerInterface::Execute_AddToLevel(EffectProperties.SourceCharacter, AddLevel);
+		 		IPlayerInterface::Execute_AddToAttributePoint(EffectProperties.SourceCharacter, AttrPointsReward);
+		 		IPlayerInterface::Execute_AddToSpellPoint(EffectProperties.SourceCharacter, SpellPointsReward);
+
+		 		bIsTopOffHealth = true;
+		 		bIsTopOffMana = true;
+		 		
+		 		IPlayerInterface::Execute_LevelUp(EffectProperties.SourceCharacter);
+		 	
+		 	}
+		 	IPlayerInterface::Execute_AddToXP(EffectProperties.SourceCharacter,XP);
+		 }
+	}
 }
 
+void UAuraAttributeSet::SendXPEvent(const FEffectProperties& Props) const
+{
+	if (Props.TargetCharacter->Implements<UCombatInterface>())
+	{
+		const int32 TargetLevel = ICombatInterface::Execute_GetActorLevel(Props.TargetCharacter);
+		const ECharacterClass TargetClass = ICombatInterface::Execute_GetCharacterClass(Props.TargetCharacter);
+		const int32 XPReward = UAuraGASLibrary::GetRewardForClassAndLevel(Props.TargetCharacter, TargetClass, TargetLevel);
+
+		const FAuraGameplayTags& GameplayTags = FAuraGameplayTags::Get();
+		FGameplayEventData Payload;
+		Payload.EventTag = GameplayTags.Attribute_Meta_IncomingXP;
+		Payload.EventMagnitude = XPReward;
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Props.SourceCharacter, GameplayTags.Attribute_Meta_IncomingXP, Payload);
+	}
+}
 
 
 

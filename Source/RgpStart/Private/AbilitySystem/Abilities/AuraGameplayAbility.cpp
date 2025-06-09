@@ -3,8 +3,7 @@
 
 #include "AbilitySystem/Abilities/AuraGameplayAbility.h"
 
-#include "Actor/AuraProjectile.h"
-#include "Interaction/CombatInterface.h"
+#include "AbilitySystemComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 
@@ -14,8 +13,8 @@ void UAuraGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Hand
                                            const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-	UKismetSystemLibrary::PrintString(this, "ActivateAbility (C++)", true, true, FLinearColor::Yellow, 5.0f);
-
+	//UKismetSystemLibrary::PrintString(this, FString::Printf("ActivateAbility %ls",*GetName()), true, true, FLinearColor::Yellow, 5.0f);
+	
 	
 	
 }

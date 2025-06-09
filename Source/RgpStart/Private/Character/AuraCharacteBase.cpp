@@ -34,9 +34,9 @@ UAbilitySystemComponent* AAuraCharacteBase::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
-int32 AAuraCharacteBase::GetActorLevel() const
+
+int32 AAuraCharacteBase::GetActorLevel_Implementation() const
 {
-	
 	return 1;
 }
 
@@ -156,6 +156,7 @@ void AAuraCharacteBase::AddCharactorAbilities() const
 	if (!HasAuthority()) return;
 	UAuraAbilitySystemComponent* AuraASC = CastChecked<UAuraAbilitySystemComponent>(AbilitySystemComponent);
 
+	AuraASC->AddCharacterPassiveAbilities(StartupPassiveAbilities);
 	AuraASC->AddCharacterAbilities(StartupAbilities);
 }
 

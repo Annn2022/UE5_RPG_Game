@@ -9,6 +9,7 @@
 #include "UI/WidgetController/OverlayWidgetController.h"
 #include "AuraGASLibrary.generated.h"
 
+class USpellMenuWidgetController;
 /**
  * 
  */
@@ -19,11 +20,14 @@ class RGPSTART_API UAuraGASLibrary : public UBlueprintFunctionLibrary
 
 public:
 	
-	UFUNCTION(BlueprintPure, Category = "AuraGASLibrary")
+	UFUNCTION(BlueprintPure, Category = "AuraGASLibrary", meta = (DefaultToSelf = "ContextObject"))
 	static UOverlayWidgetController* GetOverlayWidgetController(const UObject* ContextObject);
 	
-	UFUNCTION(BlueprintPure, Category = "AuraGASLibrary")
+	UFUNCTION(BlueprintPure, Category = "AuraGASLibrary", meta = (DefaultToSelf = "ContextObject"))
 	static UAttributeMenuWidgetController* GetAttributeMenuWidgetController(const UObject* ContextObject);
+
+	UFUNCTION(BlueprintPure, Category = "AuraGASLibrary", meta = (DefaultToSelf = "ContextObject"))
+	static USpellMenuWidgetController* GetSpellMenuWidgetController(const UObject* ContextObject);
 
 	UFUNCTION(BlueprintCallable)
 	static void InitializeDefaultAttributes(const UObject* WorldContextObject, ECharacterClass CC, float Level, UAbilitySystemComponent* ASC);
@@ -33,6 +37,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	static UCharacterClassInfo* GetCharacterClassInfo(const UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintCallable)
+	static UAbilityInfo* GetAbilityInfo(const UObject* WorldContextObject);
 
 	/*
 	 * Effect Context Getters
@@ -129,5 +136,5 @@ public:
 	UFUNCTION(BlueprintPure, Category = "AuraAbilitySystemLibrary|GameplayMechanics")
 	static int32 GetRewardForClassAndLevel(const UObject* WorldContextObject, ECharacterClass CC, float Level);
 private:
-	static FWidgetControllerParams GetWidgetControllerParams(APlayerController* PC);
+	static FWidgetControllerParams MakeWidgetControllerParams(APlayerController* PC);
 };

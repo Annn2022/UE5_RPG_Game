@@ -7,6 +7,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "AuraGameModeBase.generated.h"
 
+class UAbilityInfo;
 /**
  * 
  */
@@ -17,5 +18,8 @@ class RGPSTART_API AAuraGameModeBase : public AGameModeBase
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "自定义设置（必填）")
 	TObjectPtr<UCharacterClassInfo> CharacterClassInfo;
+
+	UPROPERTY(EditDefaultsOnly, Category = "自定义设置（必填）")
+	TObjectPtr<UAbilityInfo> AbilityInfo;
 	
 };
